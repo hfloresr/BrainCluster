@@ -11,6 +11,12 @@ data/
 *.mat
 *.csv
 
+# figures and videos
+figs/
+vids/
+*.png
+*.mp4
+
 # Distribution / packaging
 .Python
 env/
