@@ -7,9 +7,9 @@ __pycache__/
 *.so
 
 # data
-data/
 *.mat
 *.csv
+*.Rdmpd
 
 # figures and videos
 figs/
