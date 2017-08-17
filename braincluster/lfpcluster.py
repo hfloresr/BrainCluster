@@ -4,9 +4,11 @@
 
 import numpy as np
 from sklearn import preprocessing
-from scipy.io import loadmat
 from scipy.cluster.hierarchy import dendrogram, linkage
 from scipy.cluster.hierarchy import fcluster
+
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 class LFPCluster(object):
@@ -15,7 +17,7 @@ class LFPCluster(object):
     def __init__(self, data, rate, bad_channels=None):
         super(LFPCluster, self).__init__()
         self.Z = data
-        self.nchannels = Z.shape[1]
+        self.nchannels = self.Z.shape[1]
         self.channels = {ch for ch in range(self.nchannels)}
         self.bad_channels = bad_channels
         self.rate = rate
@@ -75,3 +77,28 @@ class LFPCluster(object):
         for ch in self.bad_channels:
             self.my_clusters.insert(ch, 0)  # Assign bad channels to cluster 0
         return self.my_clusters
+
+    def _init_grid(self):
+        y = [1, 2, 3, 4] * 8
+        x = [1]*4 + [2]*4 + [3]*4 + [5]*4 + [6]*4 + [7]*4 + [8]*4
+        return x, y
+
+    def plot_clusters(self, epoch,  cmap=plt.cm.hsv_r):
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.grid(False)
+        ax.set_xticks([])
+        ax.set_yticks([])
+
+        x, y = self._init_grid()
+        seq = [c*100 if c == 0 else 100 for c in self.my_clusters]  # sequence
+        ax.scatter(x, y, c=self.my_clusters, s=seq, cmap=cmap)
+
+        ch_labels = [ch for ch in range(1, self.nchannels+1)]
+        for i, txt in enumerate(ch_labels):
+            ax.annotate(txt, (x[i], y[i]))
+
+        title = 'Epoch {}'.format(epoch)
+        title_font = {'fontname': 'DejaVu Sans', 'size': '16',
+                      'color': 'black', 'weight': 'bold'}
+        ax.set_title(title, **title_font)
+        ax.invert_yaxis()
