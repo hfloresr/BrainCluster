@@ -30,3 +30,6 @@ my_clusters = pre_cluster.get_clusters(k=4, epoch=1)
 print(my_clusters)
 
 pre_cluster.plot_clusters(epoch=1)
+
+
+

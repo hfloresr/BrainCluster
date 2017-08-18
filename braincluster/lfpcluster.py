@@ -33,6 +33,7 @@ class LFPCluster(object):
         # Retrieve good/valid channels
         chns = list(self.good_channels)
 
+        # Standardize each epoch to 0 mean and unit variance
         for i in range(nepochs):
             ioffset = i * self.rate
             self.Z[ioffset:ioffset+self.rate, chns] = preprocessing.scale(
