@@ -14,22 +14,29 @@ import seaborn as sns
 class LFPCluster(object):
     """docstring for LFPCluster"""
 
-    def __init__(self, data, rate, bad_channels=None):
+    def __init__(self, Z, rate, bad_channels=None):
         super(LFPCluster, self).__init__()
-        self.Z = data
+        self.Z = Z
         self.nchannels = self.Z.shape[1]
         self.channels = {ch for ch in range(self.nchannels)}
         self.bad_channels = bad_channels
+        self.good_channels = self._get_good_channels()
         self.rate = rate
 
+    def _get_good_channels(self):
+        if self.bad_channels is None:
+            return self.channels
+        return self.channels.difference(set(self.bad_channels))
+
+
     def standardize_lfp(self, nepochs):
-        # Remove bad channels
-        if self.bad_channels:
-            self.Z = np.delete(self.Z, self.bad_channels, axis=1)
+        # Retrieve good/valid channels
+        chns = list(self.good_channels)
+
         for i in range(nepochs):
-            ioffset = i * rate
-            preprocessing.scale(self.Z[ioffset:ioffset+rate, ], copy=False)
-        self.Z_norm = self.Z
+            ioffset = i * self.rate
+            self.Z[ioffset:ioffset+self.rate, chns] = preprocessing.scale(
+                self.Z[ioffset:ioffset+self.rate, chns])
 
     def standardize_post_lfp(self, nepochs):
         # Exclude channels for certain epochs.
@@ -46,9 +53,8 @@ class LFPCluster(object):
         epochs_exc_chs_16 = {170, 171}
         epochs_exc_chs_11 = {118}
 
-        good_channels = self.channels.difference(set(self.bad_channels))
         for i in range(nepochs):
-            chns = good_channels
+            chns = self.good_channels
             if i in epochs_exc_chs_11_15_16:
                 chns.difference({10, 14, 15})
             elif i in epochs_exc_chs_15_16:
@@ -60,16 +66,16 @@ class LFPCluster(object):
             chns = list(chns)  # for fancy indexing
             ioffset = i * self.rate
             self.Z[ioffset:ioffset+self.rate, chns] = preprocessing.scale(
-                self.Z[ioffset:ioffset+rate, chns])
+                self.Z[ioffset:ioffset+self.rate, chns])
 
 
     def get_clusters(self, k, epoch, criter='maxclust'):
-        my_chs = self.channels.difference(set(self.bad_channels))
-        my_chs = list(my_chs)
+        # Retrieve good/valid channels
+        chns= list(self.good_channels)
 
         i = epoch - 1  # indices for epochs are 0-based
         ioffset = i * self.rate
-        Z_clust = linkage(self.Z[ioffset:ioffset+rate, my_chs].T,
+        Z_clust = linkage(self.Z[ioffset:ioffset+self.rate, chns].T,
                           'complete', 'correlation')
         clusters = fcluster(Z_clust, k, criterion=criter)
 
@@ -80,18 +86,19 @@ class LFPCluster(object):
 
     def _init_grid(self):
         y = [1, 2, 3, 4] * 8
-        x = [1]*4 + [2]*4 + [3]*4 + [5]*4 + [6]*4 + [7]*4 + [8]*4
+        x = [1]*4 + [2]*4 + [3]*4 + [4]*4 + [5]*4 + [6]*4 + [7]*4 + [8]*4
         return x, y
 
-    def plot_clusters(self, epoch,  cmap=plt.cm.hsv_r):
+    def plot_clusters(self, epoch, clusters=None, cmap=plt.cm.hsv_r):
         fig, ax = plt.subplots(figsize=(10, 6))
         ax.grid(False)
         ax.set_xticks([])
         ax.set_yticks([])
 
+        clusts = self.my_clusters if clusters is None else clusters
+        seq = [c*100 if c == 0 else 100 for c in clusts]  # clustering sequence
         x, y = self._init_grid()
-        seq = [c*100 if c == 0 else 100 for c in self.my_clusters]  # sequence
-        ax.scatter(x, y, c=self.my_clusters, s=seq, cmap=cmap)
+        ax.scatter(x, y, c=clusts, s=seq, cmap=cmap)
 
         ch_labels = [ch for ch in range(1, self.nchannels+1)]
         for i, txt in enumerate(ch_labels):
@@ -102,3 +109,4 @@ class LFPCluster(object):
                       'color': 'black', 'weight': 'bold'}
         ax.set_title(title, **title_font)
         ax.invert_yaxis()
+        plt.show()

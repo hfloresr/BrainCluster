@@ -23,3 +23,10 @@ bad_channels = np.array([5, 8, 9, 12, 16, 26])
 
 rate = 1000
 pre_cluster = LFPCluster(Z_pre, rate, bad_channels)
+
+num_epochs = 300
+pre_cluster.standardize_lfp(num_epochs)
+my_clusters = pre_cluster.get_clusters(k=4, epoch=1)
+print(my_clusters)
+
+pre_cluster.plot_clusters(epoch=1)
