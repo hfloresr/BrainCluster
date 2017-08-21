@@ -43,6 +43,7 @@ class LFPCluster(object):
         # Exclude channels for certain epochs.
         # NOTE: Highly specific to this project.
         # TODO: Have .yml or .json file to determine epoch-channel excludes
+        # Dang you Altyn!!!!
         epochs_exc_chs_11_15_16 = {53, 62, 63, 113, 114, 115, 116, 135, 136,
                                    137, 138, 139, 140, 150, 151, 152, 153, 160,
                                    161, 162, 163, 164, 165, 166, 167, 181, 182,
@@ -70,9 +71,13 @@ class LFPCluster(object):
                 self.Z[ioffset:ioffset+self.rate, chns])
 
 
-    def get_clusters(self, k, epoch, criter='maxclust'):
-        # Retrieve good/valid channels
-        chns= list(self.good_channels)
+    def get_clusters(self, k, epoch, ex_chs=None, criter='maxclust'):
+        # Take the set difference to exclude channels for certain epochs
+        if ex_chs is not None:
+            self.good_channels.difference(ex_chs)
+
+        # Use list for fancy indexing
+        chns = list(self.good_channels)
 
         i = epoch - 1  # indices for epochs are 0-based
         ioffset = i * self.rate
