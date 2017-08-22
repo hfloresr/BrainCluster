@@ -8,8 +8,6 @@ from scipy.io import loadmat
 
 import matplotlib.pyplot as plt
 import seaborn as sns
-CMAP = plt.cm.hsv_r
-
 
 
 # Load dataset
@@ -32,20 +30,20 @@ print(my_clusters)
 
 #pre_cluster.plot_clusters(epoch=1)
 
-epochs_exc_chs_11_15_16 = {53, 62, 63, 113, 114, 115, 116, 135, 136,
-                           137, 138, 139, 140, 150, 151, 152, 153, 160,
-                           161, 162, 163, 164, 165, 166, 167, 181, 182,
-                           183, 184, 185, 186, 199, 200, 201, 202, 203,
-                           204, 205, 206, 207, 222, 223, 236, 237, 238,
-                           239, 295, 296}
-epochs_exc_chs_15_16 = {61, 64, 65}
-epochs_exc_chs_11_16 = {235, 240, 242}
-epochs_exc_chs_16 = {170, 171}
-epochs_exc_chs_11 = {118}
+epochs_exc_chs_11_15_16 = {54, 63, 64, 114, 115, 116, 117, 136, 137,
+                           138, 139, 140, 141, 151, 152, 153, 154, 161,
+                           162, 163, 164, 165, 166, 167, 168, 182, 183,
+                           184, 185, 186, 187, 200, 201, 202, 203, 204,
+                           205, 206, 207, 208, 223, 224, 237, 238, 239,
+                           240, 296, 297}
+epochs_exc_chs_15_16 = {62, 65, 66}
+epochs_exc_chs_11_16 = {236, 241, 243}
+epochs_exc_chs_16 = {171, 172}
+epochs_exc_chs_11 = {119}
 
 post_clust = LFPCluster(Z_post, rate, bad_channels)
 
-for i in range(53, 55):
+for i in range(1, 301):
     if i in epochs_exc_chs_11_15_16:
         ex_chs = {10, 14, 15}
     elif i in epochs_exc_chs_15_16:
@@ -59,6 +57,7 @@ for i in range(53, 55):
     else:
         ex_chs = None
 
+    #import pdb; pdb.set_trace()
     my_post_clusters = post_clust.get_clusters(k=4, epoch=i, ex_chs=ex_chs)
     post_clust.plot_clusters(epoch=i, clusters=my_post_clusters)
     fname = 'post_cluster_epoch_{}.png'.format(i+1)

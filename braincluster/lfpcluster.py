@@ -73,11 +73,11 @@ class LFPCluster(object):
 
     def get_clusters(self, k, epoch, ex_chs=None, criter='maxclust'):
         # Take the set difference to exclude channels for certain epochs
-        if ex_chs is not None:
-            self.good_channels.difference(ex_chs)
+        chns = self.good_channels if ex_chs is None \
+                                  else self.good_channels.difference(ex_chs)
 
         # Use list for fancy indexing
-        chns = list(self.good_channels)
+        chns = list(chns)
 
         i = epoch - 1  # indices for epochs are 0-based
         ioffset = i * self.rate
@@ -97,7 +97,7 @@ class LFPCluster(object):
         x = [1]*4 + [2]*4 + [3]*4 + [4]*4 + [5]*4 + [6]*4 + [7]*4 + [8]*4
         return x, y
 
-    def plot_clusters(self, epoch, clusters=None, cmap=plt.cm.hsv_r):
+    def plot_clusters(self, epoch, clusters=None):
         fig, ax = plt.subplots(figsize=(10, 6))
         ax.grid(False)
         ax.set_xticks([])
@@ -106,7 +106,7 @@ class LFPCluster(object):
         clusts = self.my_clusters if clusters is None else clusters
         seq = [c*100 if c == 0 else 100 for c in clusts]  # clustering sequence
         x, y = self._init_grid()
-        ax.scatter(x, y, c=clusts, s=seq, cmap=cmap)
+        ax.scatter(x, y, c=clusts, s=seq, cmap=plt.cm.hsv)
 
         ch_labels = [ch for ch in range(1, self.nchannels+1)]
         for i, txt in enumerate(ch_labels):
@@ -117,4 +117,4 @@ class LFPCluster(object):
                       'color': 'black', 'weight': 'bold'}
         ax.set_title(title, **title_font)
         ax.invert_yaxis()
-        plt.show()
+        #plt.show()
