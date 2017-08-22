@@ -5,6 +5,7 @@
 import numpy as np
 from lfpcluster import LFPCluster
 from scipy.io import loadmat
+from scipy.cluster.hierarchy import dendrogram, linkage
 
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -16,6 +17,19 @@ data = loadmat('../data/F141020-lfp-5min-1kHz.mat')
 Z_pre = data['pre_pmcao']    # Extract pre-stroke data
 Z_post = data['post_pmcao']  # Extract post-stroke data
 
+
+def plot_dendrogram(Z_clust, bad_channels=None, max_d=None):
+    if bad_channels is None:
+        labels = [i for i in range(1, 33)]
+    else:
+        labels = [i for i in range(1, 33) if i not in bad_channels]
+
+    dend = dendrogram(Z_clust, color_threshold=1, labels=labels)
+    if max_d:
+        plt.axhline(y=max_d, c='k')
+    plt.show()
+    
+
 # Bad channels
 #bad_channels = np.array([5, 8, 9, 12, 16, 26])
 bad_channels = {5, 8, 9, 12, 16, 26}
@@ -25,8 +39,8 @@ pre_cluster = LFPCluster(Z_pre, rate, bad_channels)
 
 num_epochs = 300
 pre_cluster.standardize_lfp(num_epochs)
-my_clusters = pre_cluster.get_clusters(k=4, epoch=1)
-print(my_clusters)
+Zpre_clust, my_clusters = pre_cluster.get_clusters(k=4, epoch=1)
+plot_dendrogram(Zpre_clust, bad_channels, max_d=0.8)
 
 #pre_cluster.plot_clusters(epoch=1)
 
@@ -43,25 +57,24 @@ epochs_exc_chs_11 = {119}
 
 post_clust = LFPCluster(Z_post, rate, bad_channels)
 
-for i in range(1, 301):
-    if i in epochs_exc_chs_11_15_16:
-        ex_chs = {10, 14, 15}
-    elif i in epochs_exc_chs_15_16:
-        ex_chs = {14, 15}
-    elif i in epochs_exc_chs_11_16:
-        ex_chs = {10, 15}
-    elif i in epochs_exc_chs_16:
-        ex_chs = {15}
-    elif i in epochs_exc_chs_11:
-        ex_chs = {10}
-    else:
-        ex_chs = None
-
-    #import pdb; pdb.set_trace()
-    my_post_clusters = post_clust.get_clusters(k=4, epoch=i, ex_chs=ex_chs)
-    post_clust.plot_clusters(epoch=i, clusters=my_post_clusters)
-    fname = 'post_cluster_epoch_{}.png'.format(i+1)
-    plt.savefig(fname, bbox_inches='tight')
-    plt.close()
+#for i in range(1, 301):
+#    if i in epochs_exc_chs_11_15_16:
+#        ex_chs = {10, 14, 15}
+#    elif i in epochs_exc_chs_15_16:
+#        ex_chs = {14, 15}
+#    elif i in epochs_exc_chs_11_16:
+#        ex_chs = {10, 15}
+#    elif i in epochs_exc_chs_16:
+#        ex_chs = {15}
+#    elif i in epochs_exc_chs_11:
+#        ex_chs = {10}
+#    else:
+#        ex_chs = None
+#
+#    my_post_clusters = post_clust.get_clusters(k=4, epoch=i, ex_chs=ex_chs)
+#    post_clust.plot_clusters(epoch=i, clusters=my_post_clusters)
+#    fname = 'post_cluster_epoch_{}.png'.format(i+1)
+#    plt.savefig(fname, bbox_inches='tight')
+#    plt.close()
 
 

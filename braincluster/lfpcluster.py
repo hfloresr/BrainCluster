@@ -90,7 +90,7 @@ class LFPCluster(object):
         self.my_clusters = list(clusters)
         for ch in exclude_chans:
             self.my_clusters.insert(ch, 0)  # Assign bad channels to cluster 0
-        return self.my_clusters
+        return Z_clust, self.my_clusters
 
     def _init_grid(self):
         y = [1, 2, 3, 4] * 8
