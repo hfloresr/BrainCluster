@@ -19,7 +19,8 @@ Z_pre = data['pre_pmcao']    # Extract pre-stroke data
 Z_post = data['post_pmcao']  # Extract post-stroke data
 
 # Bad channels
-bad_channels = np.array([5, 8, 9, 12, 16, 26])
+#bad_channels = np.array([5, 8, 9, 12, 16, 26])
+bad_channels = {5, 8, 9, 12, 16, 26}
 
 rate = 1000
 pre_cluster = LFPCluster(Z_pre, rate, bad_channels)
@@ -40,11 +41,11 @@ epochs_exc_chs_11_15_16 = {53, 62, 63, 113, 114, 115, 116, 135, 136,
 epochs_exc_chs_15_16 = {61, 64, 65}
 epochs_exc_chs_11_16 = {235, 240, 242}
 epochs_exc_chs_16 = {170, 171}
-epochs_exc_chs_11 = {118}	
-						    
+epochs_exc_chs_11 = {118}
+
 post_clust = LFPCluster(Z_post, rate, bad_channels)
 
-for i in range(52, 55):
+for i in range(53, 55):
     if i in epochs_exc_chs_11_15_16:
         ex_chs = {10, 14, 15}
     elif i in epochs_exc_chs_15_16:

@@ -85,8 +85,10 @@ class LFPCluster(object):
                           'complete', 'correlation')
         clusters = fcluster(Z_clust, k, criterion=criter)
 
+        exclude_chans = self.bad_channels if ex_chs is None \
+                                          else self.bad_channels.union(ex_chs)
         self.my_clusters = list(clusters)
-        for ch in self.bad_channels:
+        for ch in exclude_chans:
             self.my_clusters.insert(ch, 0)  # Assign bad channels to cluster 0
         return self.my_clusters
 
